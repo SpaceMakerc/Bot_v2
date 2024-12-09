@@ -1,5 +1,8 @@
+from aiogram import types
+
 import json
 import os
+import io
 
 from src.core import BASE_DIR
 
@@ -15,3 +18,11 @@ def load_data(file_):
     with open(file_, "r", encoding="utf-8") as doc:
         data = json.load(doc)
         return data
+
+
+async def get_photo_from_user(message: types.Message):
+    file_info = await message.bot.get_file(message.photo[-1].file_id)
+    downloaded_file = await message.bot.download_file(file_info.file_path)
+    bytes_of_photo = io.BytesIO(downloaded_file.read()).getvalue()
+
+    return bytes_of_photo

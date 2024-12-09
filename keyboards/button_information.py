@@ -1,8 +1,8 @@
 class StartButtonNames:
-    weather = "Покажи погоду"
-    help = "Помощь"
-    survey = "Сохранить информацию"
-    outlet = "Покажи информацию"
+    weather = "Покажи погоду ⛅️"
+    help = "Помощь 🆘"
+    survey = "Сохранить информацию 📑"
+    outlet = "Покажи информацию 🎬"
 
 
 class StoreButtonNames:
@@ -20,3 +20,8 @@ class GenreButtonName:
     fantasy = "Фэнтези"
     adventures = "Приключения"
     sit_com = "Сит ком"
+
+
+class PictureStatusButtonName:
+    plain = "Обычная"
+    special = "Важная"

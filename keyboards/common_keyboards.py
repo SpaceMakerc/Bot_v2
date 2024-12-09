@@ -2,7 +2,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from .button_information import (StartButtonNames, StoreButtonNames,
-                                 GenreButtonName)
+                                 GenreButtonName, PictureStatusButtonName)
 
 
 def get_start_kb() -> ReplyKeyboardMarkup:
@@ -48,5 +48,16 @@ def get_genre_options_kb(
     if media != StoreButtonNames.film:
         builder.button(text=GenreButtonName.sit_com)
     builder.adjust(2)
+
+    return builder.as_markup(resize_keyboard=True)
+
+
+def get_picture_status_kb() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+
+    builder.button(text=PictureStatusButtonName.plain)
+    builder.button(text=PictureStatusButtonName.special)
+
+    builder.adjust(1)
 
     return builder.as_markup(resize_keyboard=True)

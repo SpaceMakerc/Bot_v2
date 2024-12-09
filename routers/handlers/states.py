@@ -22,9 +22,9 @@ class SerialData(StatesGroup):
 
 
 class PictureData(StatesGroup):
-    name = State()
     comment = State()
-    genre = State()
+    status = State()
+    picture = State()
 
 
 class DocData(StatesGroup):
@@ -58,6 +58,11 @@ class GenreName(str, Enum):
     sit_com = "Сит ком"
 
 
+class PictureStatus(str, Enum):
+    plain = "Обычная"
+    special = "Важная"
+
+
 question_data = get_questions_to_states()
 
 next_step_info: dict[Union[TypesOfInformation, str],
@@ -66,8 +71,8 @@ next_step_info: dict[Union[TypesOfInformation, str],
         FilmData.name, question_data[TypesOfInformation.film]),
     TypesOfInformation.serial: (
         SerialData.name, question_data[TypesOfInformation.serial]),
-        # TypesOfInformation.picture: (
-        #     PictureData.name, question_data[TypesOfInformation.picture]),
-        # TypesOfInformation.doc: (
-        #     DocData.name, question_data[TypesOfInformation.doc]),
-    }
+    TypesOfInformation.picture: (
+        PictureData.comment, question_data[TypesOfInformation.picture]),
+    # TypesOfInformation.doc: (
+    #     DocData.name, question_data[TypesOfInformation.doc]),
+}
