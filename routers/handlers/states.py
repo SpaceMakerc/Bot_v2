@@ -33,6 +33,14 @@ class DocData(StatesGroup):
     genre = State()
 
 
+class CancelSurvey(StatesGroup):
+    type_survey = StartSurveyOptions
+    film_survey = FilmData
+    serial_survey = SerialData
+    picture_survey = PictureData
+    doc_survey = DocData
+
+
 class TypesOfInformation(str, Enum):
     film = "Фильм"
     serial = "Сериал"

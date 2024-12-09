@@ -5,8 +5,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils import markdown
 
 from keyboards.button_information import StartButtonNames
-from keyboards.common_keyboards import get_store_kb
-from .states import StartSurveyOptions, TypesOfInformation, next_step_info
+from keyboards.common_keyboards import get_store_kb, get_start_kb
+from .states import (StartSurveyOptions, TypesOfInformation, next_step_info,
+                     CancelSurvey)
 
 router = Router(name=__name__)
 
@@ -17,7 +18,9 @@ async def handle_start_survey(message: types.Message, state: FSMContext):
     await state.set_state(StartSurveyOptions.type)
     await message.answer(
         text="Хорошо, давай сохраним твою информацию. Сначала выбери "
-             f"{markdown.hbold('тип данных')}:",
+             f"{markdown.hbold('тип данных')}. Ты можешь отменить процесс в "
+             f"любой момент написав {markdown.hbold('stop')} или нажать на"
+             f" /stop",
         reply_markup=get_store_kb()
     )
 
@@ -29,4 +32,27 @@ async def handle_type_of_information(message: types.Message, state: FSMContext):
     await state.set_state(next_step)
     await message.answer(
         text=question['question_1']
+    )
+
+
+@router.message(Command("stop", prefix="/"), CancelSurvey())
+@router.message(F.text.casefold() == "stop", CancelSurvey())
+async def handle_cancel_within_survey(
+        message: types.Message, state: FSMContext
+):
+    """
+    Allow user to cancel survey
+    """
+    current_state = await state.get_state()
+    if current_state is None:
+        await message.reply(
+            text="Процесс отменён",
+            reply_markup=get_start_kb()
+        )
+        return
+    await state.clear()
+    await message.reply(
+        text="Процесс отменён, если хочешь снова попробовать добавить "
+             f"информацию, нажми /survey",
+        reply_markup=get_start_kb()
     )
