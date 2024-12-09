@@ -11,7 +11,8 @@ async def handle_add_name_to_film(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
     await state.set_state(FilmData.comment)
     await message.answer(
-        text=next_step_info[TypesOfInformation.film][1]["question_2"]
+        text=next_step_info[TypesOfInformation.film][1]["question_2"],
+        reply_markup=types.ReplyKeyboardRemove()
     )
 
 
