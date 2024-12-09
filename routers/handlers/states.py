@@ -40,13 +40,14 @@ class TypesOfInformation(str, Enum):
     doc = "Документ"
 
 
-class GenreFilmName(str, Enum):
+class GenreName(str, Enum):
     comedy = "Комедия"
     horror = "Ужасы"
     drama = "Драма"
     fantastic = "Фантастика"
     fantasy = "Фэнтези"
     adventures = "Приключения"
+    sit_com = "Сит ком"
 
 
 question_data = get_questions_to_states()

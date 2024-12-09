@@ -2,7 +2,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from .button_information import (StartButtonNames, StoreButtonNames,
-                                 GenreFilmButtonName)
+                                 GenreButtonName)
 
 
 def get_start_kb() -> ReplyKeyboardMarkup:
@@ -34,16 +34,19 @@ def get_store_kb() -> ReplyKeyboardMarkup:
     return builder.as_markup(resize_keyboard=True)
 
 
-def get_genre_options_kb() -> ReplyKeyboardMarkup:
+def get_genre_options_kb(
+        media: str = StoreButtonNames.film
+) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
-    builder.button(text=GenreFilmButtonName.comedy)
-    builder.button(text=GenreFilmButtonName.horror)
-    builder.button(text=GenreFilmButtonName.drama)
-    builder.button(text=GenreFilmButtonName.fantasy)
-    builder.button(text=GenreFilmButtonName.fantastic)
-    builder.button(text=GenreFilmButtonName.adventures)
-
+    builder.button(text=GenreButtonName.comedy)
+    builder.button(text=GenreButtonName.horror)
+    builder.button(text=GenreButtonName.drama)
+    builder.button(text=GenreButtonName.fantasy)
+    builder.button(text=GenreButtonName.fantastic)
+    builder.button(text=GenreButtonName.adventures)
+    if media != StoreButtonNames.film:
+        builder.button(text=GenreButtonName.sit_com)
     builder.adjust(2)
 
     return builder.as_markup(resize_keyboard=True)

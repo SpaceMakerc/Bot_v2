@@ -12,10 +12,11 @@ class StoreButtonNames:
     doc = "Документ"
 
 
-class GenreFilmButtonName:
+class GenreButtonName:
     comedy = "Комедия"
     horror = "Ужасы"
     drama = "Драма"
     fantastic = "Фантастика"
     fantasy = "Фэнтези"
     adventures = "Приключения"
+    sit_com = "Сит ком"
