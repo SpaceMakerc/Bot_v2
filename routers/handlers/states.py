@@ -29,8 +29,8 @@ class PictureData(StatesGroup):
 
 class DocData(StatesGroup):
     name = State()
-    comment = State()
-    genre = State()
+    description = State()
+    doc = State()
 
 
 class CancelSurvey(StatesGroup):
@@ -73,6 +73,6 @@ next_step_info: dict[Union[TypesOfInformation, str],
         SerialData.name, question_data[TypesOfInformation.serial]),
     TypesOfInformation.picture: (
         PictureData.comment, question_data[TypesOfInformation.picture]),
-    # TypesOfInformation.doc: (
-    #     DocData.name, question_data[TypesOfInformation.doc]),
+    TypesOfInformation.doc: (
+        DocData.name, question_data[TypesOfInformation.doc]),
 }
