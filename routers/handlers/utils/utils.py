@@ -29,6 +29,5 @@ async def get_media_from_user(message: types.Message):
         file_info = await message.bot.get_file(file_id)
         downloaded_file = await message.bot.download_file(file_info.file_path)
     bytes_of_media = io.BytesIO(downloaded_file.read()).getvalue()
-    print(bytes_of_media)
 
     return bytes_of_media

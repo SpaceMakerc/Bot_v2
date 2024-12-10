@@ -1,6 +1,7 @@
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils import markdown
+from aiogram.enums import ChatAction
 
 from routers.handlers.states import PictureData
 from routers.handlers.utils.utils import get_media_from_user
@@ -34,6 +35,10 @@ async def send_ready_data(data: dict, message: types.Message):
         ),
         markdown.text("Статус картинки:", markdown.hbold(data["status"])),
         sep="\n"
+    )
+    await message.bot.send_chat_action(
+        chat_id=message.chat.id,
+        action=ChatAction.UPLOAD_DOCUMENT
     )
     await message.reply_document(
         document=types.BufferedInputFile(
