@@ -4,7 +4,7 @@ from sqlalchemy import select
 import asyncio
 
 from db.db_ import managers, SessionAsyncContextManager
-from db.models import Users, FilmsDate
+from db.models import Users, FilmsDate, SerialDate
 
 logger = logging.getLogger(name=__name__)
 
@@ -45,5 +45,24 @@ async def add_film(manager: SessionAsyncContextManager, data: dict):
     except Exception as er:
         logger.warning(
             "Film %s was NOT added to %s. Info %s", data["name"],
+            data["user_id"], er
+        )
+
+
+async def add_serial(manager: SessionAsyncContextManager, data: dict):
+    try:
+        async with manager:
+            serial = SerialDate(
+                user_id=data["user_id"], name=data["name"],
+                comment=data["comment"], genre=data["genre"]
+            )
+            manager.session.add(serial)
+            await manager.session.commit()
+            logger.info(
+                "Serial %s was added to %s", data["name"], data["user_id"]
+            )
+    except Exception as er:
+        logging.warning(
+            "Serial %s was NOT added to %s. Info %s", data["name"],
             data["user_id"], er
         )

@@ -19,7 +19,7 @@ async def handle_add_genre_to_film(message: types.Message, state: FSMContext):
 
 
 async def send_ready_data(message: types.Message, ready_data) -> None:
-    await add_film(managers, ready_data)
+    await add_film(manager=managers, data=ready_data)
     text = markdown.text(
         "Информация о фильме:",
         markdown.text(

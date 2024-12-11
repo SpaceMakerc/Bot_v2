@@ -23,9 +23,21 @@ class Users(Base):
     films: Mapped[list["FilmsDate"]] = relationship(
         back_populates="user"
     )
+    serials: Mapped[list["SerialDate"]] = relationship(
+        back_populates="user"
+    )
 
 
 class GenreFilms(str, Enum):
+    comedy = "Комедия"
+    horror = "Ужасы"
+    drama = "Драма"
+    fantastic = "Фантастика"
+    fantasy = "Фэнтези"
+    adventures = "Приключения"
+
+
+class GenreSerials(str, Enum):
     comedy = "Комедия"
     horror = "Ужасы"
     drama = "Драма"
@@ -50,4 +62,22 @@ class FilmsDate(Base):
 
     user: Mapped["Users"] = relationship(
         back_populates="films"
+    )
+
+
+class SerialDate(Base):
+    __tablename__ = "user_serials"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE")
+    )
+    name: Mapped[str] = mapped_column(String(100))
+    comment: Mapped[str] = mapped_column(Text, nullable=True)
+    genre: Mapped[GenreSerials] = mapped_column(
+        default=GenreSerials.sit_com
+    )
+
+    user: Mapped[Users] = relationship(
+        back_populates="serials"
     )
