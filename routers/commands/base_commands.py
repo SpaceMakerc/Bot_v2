@@ -4,12 +4,19 @@ from aiogram.utils import markdown
 
 from keyboards.common_keyboards import get_start_kb
 from keyboards.button_information import StartButtonNames
+from db.db_ import managers
+from db.queries import check_user_exists
 
 router = Router(name=__name__)
 
 
 @router.message(CommandStart())
 async def handle_start_command(message: types.Message):
+    data = {
+        "id": message.from_user.id,
+        "username": message.from_user.full_name
+    }
+    await check_user_exists(manager=managers, data=data)
     await message.answer(
         text=markdown.text(
             markdown.text(
