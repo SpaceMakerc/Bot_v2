@@ -6,6 +6,8 @@ from aiogram.enums import ChatAction
 from routers.handlers.states import PictureData
 from routers.handlers.utils.utils import get_media_from_user
 from keyboards.common_keyboards import get_start_kb
+from db.db_ import managers
+from db.queries import add_picture
 
 router = Router(name=__name__)
 
@@ -16,6 +18,7 @@ async def handle_add_picture_from_user(
 ):
     bytes_picture = await get_media_from_user(message=message)
     data = await state.update_data(picture=bytes_picture)
+    data.update({"user_id": message.from_user.id})
     await state.clear()
     await send_ready_data(data=data, message=message)
 
@@ -28,6 +31,7 @@ async def handle_add_picture_from_user_invalid_type(message: types.Message):
 
 
 async def send_ready_data(data: dict, message: types.Message):
+    await add_picture(manager=managers, data=data)
     text = markdown.text(
         "Информация о картинке",
         markdown.text(
