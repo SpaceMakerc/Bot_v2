@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import select
 
 from db.db_ import SessionAsyncContextManager
-from db.models import Users, FilmsDate, SerialDate, PictureData
+from db.models import Users, FilmsDate, SerialDate, PictureData, DocData
 
 logger = logging.getLogger(name=__name__)
 
@@ -82,5 +82,24 @@ async def add_picture(manager: SessionAsyncContextManager, data: dict):
     except Exception as er:
         logger.warning(
             "Picture %s was NOT added to %s. Info %s", data["status"],
+            data["user_id"], er
+        )
+
+
+async def add_document(manager: SessionAsyncContextManager, data: dict):
+    try:
+        async with manager:
+            document = DocData(
+                user_id=data["user_id"], name=data["name"],
+                description=data["description"], document=data["document"]
+            )
+            manager.session.add(document)
+            await manager.session.commit()
+            logger.info(
+                "Document %s was added to %s", data["name"], data["user_id"]
+            )
+    except Exception as er:
+        logger.warning(
+            "Document %s was NOT added to %s. Info %s", data["name"],
             data["user_id"], er
         )

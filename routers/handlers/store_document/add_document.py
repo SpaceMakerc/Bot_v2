@@ -6,6 +6,8 @@ from aiogram.enums import ChatAction
 from routers.handlers.states import DocData
 from routers.handlers.utils.utils import get_media_from_user
 from keyboards.common_keyboards import get_start_kb
+from db.db_ import managers
+from db.queries import add_document
 
 router = Router(name=__name__)
 
@@ -14,11 +16,13 @@ router = Router(name=__name__)
 async def handle_add_document_to_doc(message: types.Message, state: FSMContext):
     data = await get_media_from_user(message=message)
     ready_data = await state.update_data(document=data)
+    ready_data.update({"user_id": message.from_user.id})
     await state.clear()
     await send_ready_data(message=message, data=ready_data)
 
 
 async def send_ready_data(message: types.Message, data: dict):
+    await add_document(manager=managers, data=data)
     text = markdown.text(
         "Информация о файле:",
         markdown.text("Название файла", markdown.hbold(data["name"])),

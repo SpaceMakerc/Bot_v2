@@ -54,6 +54,9 @@ class Users(Base):
     pictures: Mapped[list["PictureData"]] = relationship(
         back_populates="user"
     )
+    documents: Mapped[list["DocData"]] = relationship(
+        back_populates="user"
+    )
 
 
 class FilmsDate(Base):
@@ -107,4 +110,20 @@ class PictureData(Base):
 
     user: Mapped["Users"] = relationship(
         back_populates="pictures"
+    )
+
+
+class DocData(Base):
+    __tablename__ = "user_documents"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey(
+        "users.id", ondelete="CASCADE")
+    )
+    name: Mapped[str] = mapped_column(String(100))
+    description: Mapped[str] = mapped_column(Text)
+    document: Mapped[bytes] = mapped_column(type_=BYTEA)
+
+    user: Mapped["Users"] = relationship(
+        back_populates="documents"
     )
