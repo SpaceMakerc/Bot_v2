@@ -4,6 +4,7 @@ from aiogram.utils import markdown
 
 from keyboards.common_keyboards import get_start_kb
 from keyboards.button_information import StartButtonNames
+from keyboards.inline_keyboards.show_information_kb import get_start_showtime_kb
 from db.db_ import managers
 from db.queries import check_user_exists
 
@@ -39,4 +40,13 @@ async def handle_help_command(message: types.Message):
              "Например фильм, аудио, файл, фразу...\nА также могу показать "
              "погоду",
         reply_markup=get_start_kb()
+    )
+
+
+@router.message(F.text == StartButtonNames.outlet)
+@router.message(Command("my_info", prefix="/"))
+async def handle_start_showtime(message: types.Message):
+    await message.answer(
+        text="Давай посмотрим что у тебя есть. Выбери категорию",
+        reply_markup=get_start_showtime_kb()
     )

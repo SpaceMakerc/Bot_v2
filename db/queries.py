@@ -1,6 +1,6 @@
 import logging
-
 from sqlalchemy import select
+from typing import Optional
 
 from db.db_ import SessionAsyncContextManager
 from db.models import Users, FilmsDate, SerialDate, PictureData, DocData
@@ -30,6 +30,7 @@ async def add_user(manager: SessionAsyncContextManager, data: dict):
 
 
 async def add_film(manager: SessionAsyncContextManager, data: dict):
+    # TODO add checking on films in database in order to not add the same
     try:
         async with manager:
             film = FilmsDate(
@@ -103,3 +104,57 @@ async def add_document(manager: SessionAsyncContextManager, data: dict):
             "Document %s was NOT added to %s. Info %s", data["name"],
             data["user_id"], er
         )
+
+
+async def get_user_films_by_user(
+        manager: SessionAsyncContextManager, user_id: int
+) -> Optional[dict]:
+    data = dict()
+    count = 0
+    try:
+        async with manager:
+            query = select(
+                FilmsDate.id.label("id"),
+                FilmsDate.name.label("name")
+            ).where(FilmsDate.user_id == user_id)
+            db_info = await manager.session.execute(query)
+            films = db_info.all()
+            if films is None:
+                return None
+            for film in films:
+                data[count] = {
+                    "id": film.id,
+                    "name": film.name,
+                }
+                count += 1
+        return data
+    except Exception as er:
+        logger.warning("Exception while getting films from db. info: %s", er)
+
+
+async def get_user_films_by_table_id(
+        manager: SessionAsyncContextManager, table_id: int
+) -> Optional[dict]:
+    data = dict()
+    try:
+        async with manager:
+            query = select(
+                FilmsDate.name.label("name"),
+                FilmsDate.comment.label("comment"),
+                FilmsDate.genre.label("genre")
+            ).where(FilmsDate.id == table_id)
+            db_info = await manager.session.execute(query)
+            films = db_info.all()
+            if films is None:
+                return None
+            for film in films:
+                data.update(
+                    {
+                        "name": film.name,
+                        "comment": film.comment,
+                        "genre": film.genre
+                    }
+                )
+        return data
+    except Exception as er:
+        logger.warning("Exception while getting films from db. info: %s", er)

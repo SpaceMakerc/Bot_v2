@@ -9,7 +9,7 @@ metadata = MetaData()
 
 created_at = Annotated[datetime, mapped_column(server_default=func.now())]
 
-
+# TODO modify this class. Very strange gere in table
 class GenreFilms(str, Enum):
     comedy = "Комедия"
     horror = "Ужасы"
