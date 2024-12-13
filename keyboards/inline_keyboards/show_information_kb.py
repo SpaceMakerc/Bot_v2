@@ -16,19 +16,31 @@ def get_start_showtime_kb() -> InlineKeyboardMarkup:
 
     builder.button(
         text="Фильмы",
-        callback_data=ShowCBData(category=ShowCategory.film).pack()
+        callback_data=ShowCBData(
+            category=ShowCategory.film,
+            pagination=None
+        )
     ),
     builder.button(
         text="Сериалы",
-        callback_data=ShowCBData(category=ShowCategory.serial).pack()
+        callback_data=ShowCBData(
+            category=ShowCategory.serial,
+            pagination=None
+        )
     ),
     builder.button(
         text="Картинки",
-        callback_data=ShowCBData(category=ShowCategory.picture).pack()
+        callback_data=ShowCBData(
+            category=ShowCategory.picture,
+            pagination=None
+        )
     ),
     builder.button(
         text="Документы",
-        callback_data=ShowCBData(category=ShowCategory.doc).pack()
+        callback_data=ShowCBData(
+            category=ShowCategory.doc,
+            pagination=None
+        )
     )
 
     builder.adjust(2)
@@ -42,7 +54,10 @@ def get_film_list(
     builder = InlineKeyboardBuilder()
     builder.button(
         text="В исходное меню",
-        callback_data=ShowCBData(category=ShowCategory.root).pack()
+        callback_data=ShowCBData(
+            category=ShowCategory.root,
+            pagination=None
+        )
     )
     for film in films:
         if pagination > film > pagination - 4:
@@ -52,6 +67,7 @@ def get_film_list(
                     action=FilmActions.details,
                     id=films[film]["id"],
                     name=films[film]["name"],
+                    pagination=pagination
                 )
             )
     if include_back:
@@ -80,7 +96,10 @@ def get_film_details_kb(film_cb_data: FilmCDData) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Вернуться к списку фильмов",
-        callback_data=ShowCBData(category=ShowCategory.film)
+        callback_data=ShowCBData(
+            category=ShowCategory.film,
+            pagination=film_cb_data.pagination
+        )
     )
     builder.adjust(1)
 

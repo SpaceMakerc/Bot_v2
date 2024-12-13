@@ -3,7 +3,7 @@ from aiogram.types.callback_query import CallbackQuery
 from aiogram.utils import markdown
 
 from db.db_ import managers
-from db.queries import get_user_films_by_user, get_user_films_by_table_id
+from db.queries import get_user_films_by_user, get_user_film_by_table_id
 from keyboards.inline_keyboards.inline_button_information import (
     ShowCBData,
     ShowCategory,
@@ -22,15 +22,34 @@ router = Router(name=__name__)
 
 
 @router.callback_query(ShowCBData.filter(F.category == ShowCategory.film))
-async def handle_show_films_button(callback_query: CallbackQuery):
+async def handle_show_films_button(
+        callback_query: CallbackQuery,
+        callback_data: ShowCBData
+):
     user_id = int(callback_query.from_user.id)
     films = await get_user_films_by_user(manager=managers, user_id=user_id)
+    include_back = (
+        False if callback_data.pagination == 3 or callback_data.pagination is
+        None else True
+    )
+
     await callback_query.answer()
     if films:
-        await callback_query.message.edit_text(
-            text="Список твоих фильмов:",
-            reply_markup=get_film_list(films=films)
-        )
+        if callback_data.pagination is None:
+            await callback_query.message.edit_text(
+                text="Список твоих фильмов:",
+                reply_markup=get_film_list(
+                    films=films, include_back=include_back
+                )
+            )
+        else:
+            await callback_query.message.edit_text(
+                text="Список твоих фильмов:",
+                reply_markup=get_film_list(
+                    films=films, pagination=callback_data.pagination,
+                    include_back=include_back
+                )
+            )
     else:
         await callback_query.message.answer(
             text="У тебя ещё нет сохранённых фильмов. Для того чтобы добавить"
@@ -53,7 +72,7 @@ async def handle_show_detail_button(
         callback_data: FilmCDData
 ):
     table_id = callback_data.id
-    data = await get_user_films_by_table_id(manager=managers, table_id=table_id)
+    data = await get_user_film_by_table_id(manager=managers, table_id=table_id)
     await callback_query.answer()
     message_text = markdown.text(
         markdown.hbold("Название:"), data["name"],

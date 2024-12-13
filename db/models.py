@@ -1,6 +1,6 @@
 from sqlalchemy import MetaData, func, String, ForeignKey, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import BYTEA
+from sqlalchemy.dialects.postgresql import BYTEA, ENUM
 from typing import Annotated
 from datetime import datetime
 from enum import Enum
@@ -9,8 +9,8 @@ metadata = MetaData()
 
 created_at = Annotated[datetime, mapped_column(server_default=func.now())]
 
-# TODO modify this class. Very strange gere in table
-class GenreFilms(str, Enum):
+
+class GenreFilms(Enum):
     comedy = "Комедия"
     horror = "Ужасы"
     drama = "Драма"
@@ -18,8 +18,11 @@ class GenreFilms(str, Enum):
     fantasy = "Фэнтези"
     adventures = "Приключения"
 
+    def __str__(self):
+        return self.value
 
-class GenreSerials(str, Enum):
+
+class GenreSerials(Enum):
     comedy = "Комедия"
     horror = "Ужасы"
     drama = "Драма"
@@ -28,10 +31,16 @@ class GenreSerials(str, Enum):
     adventures = "Приключения"
     sit_com = "Сит ком"
 
+    def __str__(self):
+        return self.value
 
-class StatusGenre(str, Enum):
+
+class PictureGenre(str, Enum):
     plain = "Обычная"
     special = "Важная"
+
+    def __str__(self):
+        return self.value
 
 
 class Base(DeclarativeBase):
@@ -69,9 +78,12 @@ class FilmsDate(Base):
     name: Mapped[str] = mapped_column(String(100))
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     genre: Mapped[GenreFilms] = mapped_column(
-        default=GenreFilms.adventures
+        ENUM(
+            GenreFilms, create_type=False, name="filmsgenres",
+            values_callable=lambda e: [field.value for field in e]
+        ),
+        nullable=False, default=GenreFilms.adventures
     )
-
     user: Mapped["Users"] = relationship(
         back_populates="films"
     )
@@ -87,7 +99,11 @@ class SerialDate(Base):
     name: Mapped[str] = mapped_column(String(100))
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     genre: Mapped[GenreSerials] = mapped_column(
-        default=GenreSerials.sit_com
+        ENUM(
+            GenreSerials, create_type=False, name="serialsgenres",
+            values_callable=lambda e: [field.value for field in e]
+        ),
+        default=GenreSerials.sit_com, nullable=False
     )
 
     user: Mapped[Users] = relationship(
@@ -103,8 +119,12 @@ class PictureData(Base):
         ForeignKey("users.id", ondelete="CASCADE")
     )
     comment: Mapped[str] = mapped_column(Text, nullable=True)
-    status: Mapped[StatusGenre] = mapped_column(
-        default=StatusGenre.plain
+    status: Mapped[PictureGenre] = mapped_column(
+        ENUM(
+            PictureGenre, create_type=False, name="picturesgenres",
+            values_callable=lambda e: [field.value for field in e]
+        ),
+        default=PictureGenre.plain, nullable=False
     )
     picture: Mapped[bytes] = mapped_column(type_=BYTEA)
 

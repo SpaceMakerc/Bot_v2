@@ -1,6 +1,7 @@
 from aiogram.filters.callback_data import CallbackData
 
 from enum import Enum
+from typing import Union
 
 
 class ShowCategory(Enum):
@@ -13,6 +14,7 @@ class ShowCategory(Enum):
 
 class ShowCBData(CallbackData, prefix="category"):
     category: ShowCategory
+    pagination: Union[None, int]
 
 
 class FilmActions(Enum):
@@ -24,6 +26,7 @@ class FilmCDData(CallbackData, prefix="films"):
     action: FilmActions
     id: int
     name: str
+    pagination: Union[None, int]
 
 
 class PaginationDirection(Enum):

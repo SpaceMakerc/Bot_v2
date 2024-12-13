@@ -132,7 +132,7 @@ async def get_user_films_by_user(
         logger.warning("Exception while getting films from db. info: %s", er)
 
 
-async def get_user_films_by_table_id(
+async def get_user_film_by_table_id(
         manager: SessionAsyncContextManager, table_id: int
 ) -> Optional[dict]:
     data = dict()
