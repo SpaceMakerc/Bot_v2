@@ -4,7 +4,7 @@ from aiogram.utils import markdown
 
 from keyboards.common_keyboards import get_start_kb
 from keyboards.button_information import StartButtonNames
-from keyboards.inline_keyboards.show_information_kb import get_start_showtime_kb
+from keyboards.inline_keyboards.start_inline_kb import get_start_showtime_kb
 from db.db_ import managers
 from db.queries import check_user_exists
 

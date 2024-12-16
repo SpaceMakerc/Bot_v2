@@ -2,13 +2,13 @@ import logging
 from sqlalchemy import select
 from typing import Optional
 
-from db.db_ import SessionAsyncContextManager
+from db.db_ import AsyncSessionContextManager
 from db.models import Users, FilmsDate, SerialDate, PictureData, DocData
 
 logger = logging.getLogger(name=__name__)
 
 
-async def check_user_exists(manager: SessionAsyncContextManager, data: dict):
+async def check_user_exists(manager: AsyncSessionContextManager, data: dict):
     stmt = select(Users.id).where(Users.id == data["id"])
     async with manager:
         query = await manager.session.execute(stmt)
@@ -18,7 +18,7 @@ async def check_user_exists(manager: SessionAsyncContextManager, data: dict):
     await add_user(manager=manager, data=data)
 
 
-async def add_user(manager: SessionAsyncContextManager, data: dict):
+async def add_user(manager: AsyncSessionContextManager, data: dict):
     try:
         async with manager:
             user = Users(id=data["id"], username=data["username"])
@@ -29,8 +29,7 @@ async def add_user(manager: SessionAsyncContextManager, data: dict):
         logger.warning("User %s was NOT added. Info %s", data["id"], er)
 
 
-async def add_film(manager: SessionAsyncContextManager, data: dict):
-    # TODO add checking on films in database in order to not add the same
+async def add_film(manager: AsyncSessionContextManager, data: dict):
     try:
         async with manager:
             film = FilmsDate(
@@ -49,7 +48,7 @@ async def add_film(manager: SessionAsyncContextManager, data: dict):
         )
 
 
-async def add_serial(manager: SessionAsyncContextManager, data: dict):
+async def add_serial(manager: AsyncSessionContextManager, data: dict):
     try:
         async with manager:
             serial = SerialDate(
@@ -68,7 +67,7 @@ async def add_serial(manager: SessionAsyncContextManager, data: dict):
         )
 
 
-async def add_picture(manager: SessionAsyncContextManager, data: dict):
+async def add_picture(manager: AsyncSessionContextManager, data: dict):
     try:
         async with manager:
             picture = PictureData(
@@ -87,7 +86,7 @@ async def add_picture(manager: SessionAsyncContextManager, data: dict):
         )
 
 
-async def add_document(manager: SessionAsyncContextManager, data: dict):
+async def add_document(manager: AsyncSessionContextManager, data: dict):
     try:
         async with manager:
             document = DocData(
@@ -107,7 +106,7 @@ async def add_document(manager: SessionAsyncContextManager, data: dict):
 
 
 async def get_user_films_by_user(
-        manager: SessionAsyncContextManager, user_id: int
+        manager: AsyncSessionContextManager, user_id: int
 ) -> Optional[dict]:
     data = dict()
     count = 0
@@ -133,7 +132,7 @@ async def get_user_films_by_user(
 
 
 async def get_user_film_by_table_id(
-        manager: SessionAsyncContextManager, table_id: int
+        manager: AsyncSessionContextManager, table_id: int
 ) -> Optional[dict]:
     data = dict()
     try:
@@ -158,3 +157,58 @@ async def get_user_film_by_table_id(
         return data
     except Exception as er:
         logger.warning("Exception while getting films from db. info: %s", er)
+
+
+async def get_serials_by_user(
+        manager: AsyncSessionContextManager,
+        user_id: int
+):
+    data = dict()
+    count = 0
+    try:
+        async with manager:
+            query = select(
+                SerialDate.id.label("id"),
+                SerialDate.name.label("name")
+            ).where(SerialDate.user_id == user_id)
+            db_info = await manager.session.execute(query)
+            serials = db_info.all()
+            if serials is None:
+                return None
+            for serial in serials:
+                data[count] = {
+                    "id": serial.id,
+                    "name": serial.name
+                }
+                count += 1
+            return data
+    except Exception as er:
+        logger.warning(f"Exception while getting serial from db. info: %s", er)
+
+
+async def get_serial_by_table_id(
+        manager: AsyncSessionContextManager, table_id: int
+):
+    data = dict()
+    try:
+        async with manager:
+            query = select(
+                SerialDate.name.label("name"),
+                SerialDate.comment.label("comment"),
+                SerialDate.genre.label("genre")
+            ).where(SerialDate.id == table_id)
+            db_info = await manager.session.execute(query)
+            serials = db_info.all()
+            if serials is None:
+                return None
+            for serial in serials:
+                data.update(
+                    {
+                        "name": serial.name,
+                        "comment": serial.comment,
+                        "genre": serial.genre
+                    }
+                )
+            return data
+    except Exception as er:
+        logger.warning("Exception while getting serial from db. info: %s", er)

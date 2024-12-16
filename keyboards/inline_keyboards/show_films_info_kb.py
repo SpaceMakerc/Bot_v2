@@ -5,47 +5,10 @@ from keyboards.inline_keyboards.inline_button_information import (
     ShowCBData,
     ShowCategory,
     FilmCDData,
-    FilmActions,
-    PaginationDirection,
+    MediaAction,
+    PaginationFilmDirection,
     PaginationCBFilm
 )
-
-
-def get_start_showtime_kb() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-
-    builder.button(
-        text="Фильмы",
-        callback_data=ShowCBData(
-            category=ShowCategory.film,
-            pagination=None
-        )
-    ),
-    builder.button(
-        text="Сериалы",
-        callback_data=ShowCBData(
-            category=ShowCategory.serial,
-            pagination=None
-        )
-    ),
-    builder.button(
-        text="Картинки",
-        callback_data=ShowCBData(
-            category=ShowCategory.picture,
-            pagination=None
-        )
-    ),
-    builder.button(
-        text="Документы",
-        callback_data=ShowCBData(
-            category=ShowCategory.doc,
-            pagination=None
-        )
-    )
-
-    builder.adjust(2)
-
-    return builder.as_markup()
 
 
 def get_film_list(
@@ -64,7 +27,7 @@ def get_film_list(
             builder.button(
                 text=films[film]["name"],
                 callback_data=FilmCDData(
-                    action=FilmActions.details,
+                    action=MediaAction.details,
                     id=films[film]["id"],
                     name=films[film]["name"],
                     pagination=pagination
@@ -74,7 +37,7 @@ def get_film_list(
         builder.button(
             text="Назад",
             callback_data=PaginationCBFilm(
-                move=PaginationDirection.back,
+                move=PaginationFilmDirection.back,
                 pagination=pagination
             ).pack()
         )
@@ -82,7 +45,7 @@ def get_film_list(
         builder.button(
             text="Следующие",
             callback_data=PaginationCBFilm(
-                move=PaginationDirection.next,
+                move=PaginationFilmDirection.next,
                 pagination=pagination
             ).pack()
         )

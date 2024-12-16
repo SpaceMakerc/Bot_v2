@@ -2,58 +2,57 @@ from aiogram import Router, F
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.utils import markdown
 
-from db.db_ import managers
-from db.queries import get_user_films_by_user, get_user_film_by_table_id
 from keyboards.inline_keyboards.inline_button_information import (
     ShowCBData,
     ShowCategory,
-    PaginationCBFilm,
-    PaginationFilmDirection,
-    FilmCDData,
-    MediaAction
+    SerialCBData,
+    MediaAction,
+    PaginationCBSerial,
+    PaginationSerialDirection
 )
-from keyboards.inline_keyboards.show_films_info_kb import (
-    get_film_list,
-    get_film_details_kb
+from keyboards.inline_keyboards.show_serials_info_kb import (
+    get_serial_list,
+    get_serial_details_kb
 )
 from keyboards.inline_keyboards.start_inline_kb import get_start_showtime_kb
+from db.queries import get_serials_by_user, get_serial_by_table_id
+from db.db_ import managers
 
 router = Router(name=__name__)
 
 
-@router.callback_query(ShowCBData.filter(F.category == ShowCategory.film))
-async def handle_show_films_button(
+@router.callback_query(ShowCBData.filter(F.category == ShowCategory.serial))
+async def handle_show_serial_button(
         callback_query: CallbackQuery,
         callback_data: ShowCBData
 ):
     user_id = int(callback_query.from_user.id)
-    films = await get_user_films_by_user(manager=managers, user_id=user_id)
+    serials = await get_serials_by_user(manager=managers, user_id=user_id)
+    await callback_query.answer()
     include_back = (
         False if callback_data.pagination == 3 or callback_data.pagination is
         None else True
     )
-
-    await callback_query.answer()
-    if films:
+    if serials:
         if callback_data.pagination is None:
             await callback_query.message.edit_text(
-                text="Список твоих фильмов:",
-                reply_markup=get_film_list(
-                    films=films, include_back=include_back
+                text="Список твоих сериалов",
+                reply_markup=get_serial_list(
+                    serials=serials, include_back=include_back
                 )
             )
         else:
             await callback_query.message.edit_text(
-                text="Список твоих фильмов:",
-                reply_markup=get_film_list(
-                    films=films, pagination=callback_data.pagination,
-                    include_back=include_back
+                text="Список твоих сериалов",
+                reply_markup=get_serial_list(
+                    serials=serials, include_back=include_back,
+                    pagination=callback_data.pagination
                 )
             )
     else:
         await callback_query.message.answer(
-            text="У тебя ещё нет сохранённых фильмов. Для того чтобы добавить"
-                 " фильм, жми на /start или /survey и сохрани что-нибудь"
+            text="У тебя ещё нет сохранённых сериалов. Для того чтобы добавить"
+                 " сериал, жми на /start или /survey и сохрани что-нибудь"
         )
 
 
@@ -66,13 +65,13 @@ async def handle_back_to_start_button(callback_query: CallbackQuery):
     )
 
 
-@router.callback_query(FilmCDData.filter(F.action == MediaAction.details))
+@router.callback_query(SerialCBData.filter(F.action == MediaAction.details))
 async def handle_show_detail_button(
         callback_query: CallbackQuery,
-        callback_data: FilmCDData
+        callback_data: SerialCBData
 ):
     table_id = callback_data.id
-    data = await get_user_film_by_table_id(manager=managers, table_id=table_id)
+    data = await get_serial_by_table_id(manager=managers, table_id=table_id)
     await callback_query.answer()
     message_text = markdown.text(
         markdown.hbold("Название:"), data["name"],
@@ -82,44 +81,46 @@ async def handle_show_detail_button(
     )
     await callback_query.message.edit_text(
         text=message_text,
-        reply_markup=get_film_details_kb(film_cb_data=callback_data)
+        reply_markup=get_serial_details_kb(serial_cb_data=callback_data)
     )
 
 
 @router.callback_query(
-    PaginationCBFilm.filter(F.move == PaginationFilmDirection.next)
+    PaginationCBSerial.filter(F.move == PaginationSerialDirection.next)
 )
 async def handle_show_next_films_button(
         callback_query: CallbackQuery,
-        callback_data: PaginationCBFilm
+        callback_data: PaginationCBSerial
 ):
     user_id = int(callback_query.from_user.id)
-    films = await get_user_films_by_user(manager=managers, user_id=user_id)
+    serials = await get_serials_by_user(manager=managers, user_id=user_id)
     await callback_query.answer()
     callback_data.pagination = callback_data.pagination + 3
     await callback_query.message.edit_text(
-        text="Ещё список твоих фильмов",
-        reply_markup=get_film_list(
-            films=films, pagination=callback_data.pagination, include_back=True)
+        text="Ещё список твоих сериалов",
+        reply_markup=get_serial_list(
+            serials=serials, pagination=callback_data.pagination,
+            include_back=True
+        )
     )
 
 
 @router.callback_query(
-    PaginationCBFilm.filter(F.move == PaginationFilmDirection.back)
+    PaginationCBSerial.filter(F.move == PaginationSerialDirection.back)
 )
 async def handle_show_previous_films_button(
         callback_query: CallbackQuery,
-        callback_data: PaginationCBFilm
+        callback_data: PaginationCBSerial
 ):
     user_id = int(callback_query.from_user.id)
-    films = await get_user_films_by_user(manager=managers, user_id=user_id)
+    serials = await get_serials_by_user(manager=managers, user_id=user_id)
     await callback_query.answer()
     callback_data.pagination = callback_data.pagination - 3
     include_back = False if callback_data.pagination == 3 else True
     await callback_query.message.edit_text(
-        text="Предыдущий список твоих фильмов",
-        reply_markup=get_film_list(
-            films=films, pagination=callback_data.pagination,
+        text="Предыдущий список твоих сериалов",
+        reply_markup=get_serial_list(
+            serials=serials, pagination=callback_data.pagination,
             include_back=include_back
         )
     )
