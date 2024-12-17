@@ -17,6 +17,7 @@ from keyboards.inline_keyboards.show_films_info_kb import (
     get_film_details_kb
 )
 from keyboards.inline_keyboards.start_inline_kb import get_start_showtime_kb
+from routers.handlers.utils.utils import check_button_back
 
 router = Router(name=__name__)
 
@@ -28,10 +29,7 @@ async def handle_show_films_button(
 ):
     user_id = int(callback_query.from_user.id)
     films = await get_user_films_by_user(manager=managers, user_id=user_id)
-    include_back = (
-        False if callback_data.pagination == 3 or callback_data.pagination is
-        None else True
-    )
+    include_back = check_button_back(callback_data.pagination)
 
     await callback_query.answer()
     if films:
@@ -115,7 +113,7 @@ async def handle_show_previous_films_button(
     films = await get_user_films_by_user(manager=managers, user_id=user_id)
     await callback_query.answer()
     callback_data.pagination = callback_data.pagination - 3
-    include_back = False if callback_data.pagination == 3 else True
+    include_back = check_button_back(callback_data.pagination)
     await callback_query.message.edit_text(
         text="Предыдущий список твоих фильмов",
         reply_markup=get_film_list(
