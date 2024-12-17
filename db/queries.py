@@ -266,3 +266,58 @@ async def get_picture_by_table_id(
             return data
     except Exception as er:
         logger.warning("Exception while getting picture from db. info: %s", er)
+
+
+async def get_documents_by_user(
+        manager: AsyncSessionContextManager, user_id: int
+):
+    count = 0
+    data = dict()
+    try:
+        async with manager:
+            query = select(
+                DocData.id.label("id"),
+                DocData.name.label("name")
+            ).where(DocData.user_id == user_id)
+            db_info = await manager.session.execute(query)
+            documents = db_info.all()
+            if documents:
+                for doc in documents:
+                    data[count] = {
+                        "id": doc.id,
+                        "name": doc.name
+                    }
+                    count += 1
+            return data
+    except Exception as er:
+        logger.warning("Exception while getting documents from db. info: %s",
+                       er)
+
+
+async def get_document_by_table_id(
+        manager: AsyncSessionContextManager,
+        table_id: int
+):
+    data = dict()
+    try:
+        async with manager:
+            query = select(
+                DocData.name.label("name"),
+                DocData.description.label("description"),
+                DocData.document.label("document")
+            ).where(DocData.id == table_id)
+            db_info = await manager.session.execute(query)
+            documents = db_info.all()
+            if documents is None:
+                return None
+            for doc in documents:
+                data.update(
+                    {
+                        "name": doc.name,
+                        "description": doc.description,
+                        "document": doc.document
+                    }
+                )
+            return data
+    except Exception as er:
+        logger.warning("Exception while getting document from db. info: %s", er)

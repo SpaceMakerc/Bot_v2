@@ -55,7 +55,7 @@ async def handle_show_serial_button(
 
 
 @router.callback_query(SerialCBData.filter(F.action == MediaAction.details))
-async def handle_show_detail_button(
+async def handle_show_serial_detail_button(
         callback_query: CallbackQuery,
         callback_data: SerialCBData
 ):

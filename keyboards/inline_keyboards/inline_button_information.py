@@ -71,3 +71,20 @@ class PaginationPictureDirection(Enum):
 class PaginationCBPicture(CallbackData, prefix="picture_pag"):
     move: PaginationPictureDirection
     pagination: int
+
+
+class DocumentCBData(CallbackData, prefix="documents"):
+    action: MediaAction
+    id: int
+    name: str
+    pagination: Union[None, int]
+
+
+class PaginationDocumentDirection(Enum):
+    next = "Следующие"
+    back = "Предыдущие"
+
+
+class PaginationCBDocument(CallbackData, prefix="document_pag"):
+    move: PaginationDocumentDirection
+    pagination: int

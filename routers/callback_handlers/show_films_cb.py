@@ -65,7 +65,7 @@ async def handle_back_to_start_button(callback_query: CallbackQuery):
 
 
 @router.callback_query(FilmCDData.filter(F.action == MediaAction.details))
-async def handle_show_detail_button(
+async def handle_show_films_detail_button(
         callback_query: CallbackQuery,
         callback_data: FilmCDData
 ):

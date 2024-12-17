@@ -50,12 +50,12 @@ async def handle_show_picture_button(
     else:
         await callback_query.message.answer(
             text="У тебя ещё нет сохранённых картинок. Для того чтобы добавить"
-                 " сериал, жми на /start или /survey и сохрани что-нибудь"
+                 " картинку, жми на /start или /survey и сохрани что-нибудь"
         )
 
 
 @router.callback_query(PictureCBData.filter(F.action == MediaAction.details))
-async def handle_show_detail_button(
+async def handle_show_picture_detail_button(
         callback_query: CallbackQuery,
         callback_data: PictureCBData
 ):
