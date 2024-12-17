@@ -31,3 +31,9 @@ async def get_media_from_user(message: types.Message):
     bytes_of_media = io.BytesIO(downloaded_file.read()).getvalue()
 
     return bytes_of_media
+
+
+async def return_media_to_user(media_bytes: bytes):
+    file_ = io.BytesIO()
+    file_.write(media_bytes)
+    return file_

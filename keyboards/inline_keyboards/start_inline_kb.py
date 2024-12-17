@@ -12,28 +12,24 @@ def get_start_showtime_kb() -> InlineKeyboardMarkup:
         text="Фильмы",
         callback_data=ShowCBData(
             category=ShowCategory.film,
-            pagination=None
         )
     ),
     builder.button(
         text="Сериалы",
         callback_data=ShowCBData(
             category=ShowCategory.serial,
-            pagination=None
         )
     ),
     builder.button(
         text="Картинки",
         callback_data=ShowCBData(
             category=ShowCategory.picture,
-            pagination=None
         )
     ),
     builder.button(
         text="Документы",
         callback_data=ShowCBData(
             category=ShowCategory.doc,
-            pagination=None
         )
     )
 

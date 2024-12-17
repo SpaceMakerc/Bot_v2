@@ -212,3 +212,57 @@ async def get_serial_by_table_id(
             return data
     except Exception as er:
         logger.warning("Exception while getting serial from db. info: %s", er)
+
+
+async def get_pictures_by_user(
+        manager: AsyncSessionContextManager, user_id: int
+):
+    count = 0
+    data = dict()
+    try:
+        async with manager:
+            query = select(
+                PictureData.id.label("id"),
+                PictureData.comment.label("comment")
+            ).where(PictureData.user_id == user_id)
+            db_info = await manager.session.execute(query)
+            pictures = db_info.all()
+            if pictures:
+                for picture in pictures:
+                    data[count] = {
+                        "id": picture.id,
+                        "comment": picture.comment
+                    }
+                    count += 1
+            return data
+    except Exception as er:
+        logger.warning("Exception while getting pictures from db. info: %s", er)
+
+
+async def get_picture_by_table_id(
+        manager: AsyncSessionContextManager,
+        table_id: int
+):
+    data = dict()
+    try:
+        async with manager:
+            query = select(
+                PictureData.comment.label("comment"),
+                PictureData.status.label("status"),
+                PictureData.picture.label("picture")
+            ).where(PictureData.id == table_id)
+            db_info = await manager.session.execute(query)
+            pictures = db_info.all()
+            if pictures is None:
+                return None
+            for picture in pictures:
+                data.update(
+                    {
+                        "comment": picture.comment,
+                        "status": picture.status,
+                        "picture": picture.picture
+                    }
+                )
+            return data
+    except Exception as er:
+        logger.warning("Exception while getting picture from db. info: %s", er)

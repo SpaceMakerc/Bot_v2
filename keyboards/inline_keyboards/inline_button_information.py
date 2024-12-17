@@ -14,7 +14,7 @@ class ShowCategory(Enum):
 
 class ShowCBData(CallbackData, prefix="category"):
     category: ShowCategory
-    pagination: Union[None, int]
+    pagination: Union[None, int] = None
 
 
 class MediaAction(Enum):
@@ -53,4 +53,21 @@ class PaginationSerialDirection(Enum):
 
 class PaginationCBSerial(CallbackData, prefix="serial_pag"):
     move: PaginationSerialDirection
+    pagination: int
+
+
+class PictureCBData(CallbackData, prefix="pictures"):
+    action: MediaAction
+    id: int
+    name: str
+    pagination: Union[None, int]
+
+
+class PaginationPictureDirection(Enum):
+    next = "Следующие"
+    back = "Предыдущие"
+
+
+class PaginationCBPicture(CallbackData, prefix="picture_pag"):
+    move: PaginationPictureDirection
     pagination: int

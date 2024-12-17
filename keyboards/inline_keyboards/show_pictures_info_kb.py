@@ -1,18 +1,18 @@
-from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardMarkup
 
 from keyboards.inline_keyboards.inline_button_information import (
     ShowCBData,
     ShowCategory,
-    FilmCDData,
+    PictureCBData,
     MediaAction,
-    PaginationFilmDirection,
-    PaginationCBFilm
+    PaginationPictureDirection,
+    PaginationCBPicture,
 )
 
 
-def get_film_list(
-        films, pagination: int = 3, include_back: bool = False
+def get_pictures_list(
+        pictures, pagination: int = 3, include_back: bool = False
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
@@ -21,30 +21,30 @@ def get_film_list(
             category=ShowCategory.root,
         )
     )
-    for film in films:
-        if pagination > film > pagination - 4:
+    for picture in pictures:
+        if pagination > picture > pagination - 4:
             builder.button(
-                text=films[film]["name"],
-                callback_data=FilmCDData(
+                text=pictures[picture]["comment"],
+                callback_data=PictureCBData(
                     action=MediaAction.details,
-                    id=films[film]["id"],
-                    name=films[film]["name"],
+                    id=pictures[picture]["id"],
+                    name=pictures[picture]["comment"],
                     pagination=pagination
                 )
             )
     if include_back:
         builder.button(
             text="Назад",
-            callback_data=PaginationCBFilm(
-                move=PaginationFilmDirection.back,
+            callback_data=PaginationCBPicture(
+                move=PaginationPictureDirection.back,
                 pagination=pagination
             ).pack()
         )
-    if len(films) > pagination:
+    if len(pictures) > pagination:
         builder.button(
             text="Следующие",
-            callback_data=PaginationCBFilm(
-                move=PaginationFilmDirection.next,
+            callback_data=PaginationCBPicture(
+                move=PaginationPictureDirection.next,
                 pagination=pagination
             ).pack()
         )
@@ -53,14 +53,15 @@ def get_film_list(
     return builder.as_markup()
 
 
-# TODO Here film_cb_data for future delete or update films
-def get_film_details_kb(film_cb_data: FilmCDData) -> InlineKeyboardMarkup:
+def get_picture_details_kb(
+        picture_cb_data: PictureCBData
+) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
-        text="Вернуться к списку фильмов",
+        text="Вернуться к списку картинок",
         callback_data=ShowCBData(
-            category=ShowCategory.film,
-            pagination=film_cb_data.pagination
+            category=ShowCategory.picture,
+            pagination=picture_cb_data.pagination
         )
     )
     builder.adjust(1)

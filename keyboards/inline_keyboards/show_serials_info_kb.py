@@ -19,7 +19,6 @@ def get_serial_list(
         text="В исходное меню",
         callback_data=ShowCBData(
             category=ShowCategory.root,
-            pagination=None
         )
     )
     for serial in serials:

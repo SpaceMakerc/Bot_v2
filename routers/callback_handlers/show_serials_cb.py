@@ -14,7 +14,6 @@ from keyboards.inline_keyboards.show_serials_info_kb import (
     get_serial_list,
     get_serial_details_kb
 )
-from keyboards.inline_keyboards.start_inline_kb import get_start_showtime_kb
 from db.queries import get_serials_by_user, get_serial_by_table_id
 from db.db_ import managers
 
@@ -56,15 +55,6 @@ async def handle_show_serial_button(
         )
 
 
-@router.callback_query(ShowCBData.filter(F.category == ShowCategory.root))
-async def handle_back_to_start_button(callback_query: CallbackQuery):
-    await callback_query.answer()
-    await callback_query.message.edit_text(
-        text="Давай посмотрим что у тебя есть. Выбери категорию",
-        reply_markup=get_start_showtime_kb()
-    )
-
-
 @router.callback_query(SerialCBData.filter(F.action == MediaAction.details))
 async def handle_show_detail_button(
         callback_query: CallbackQuery,
@@ -88,7 +78,7 @@ async def handle_show_detail_button(
 @router.callback_query(
     PaginationCBSerial.filter(F.move == PaginationSerialDirection.next)
 )
-async def handle_show_next_films_button(
+async def handle_show_next_serials_button(
         callback_query: CallbackQuery,
         callback_data: PaginationCBSerial
 ):
@@ -108,7 +98,7 @@ async def handle_show_next_films_button(
 @router.callback_query(
     PaginationCBSerial.filter(F.move == PaginationSerialDirection.back)
 )
-async def handle_show_previous_films_button(
+async def handle_show_previous_serials_button(
         callback_query: CallbackQuery,
         callback_data: PaginationCBSerial
 ):
