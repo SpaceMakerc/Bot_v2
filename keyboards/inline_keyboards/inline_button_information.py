@@ -25,7 +25,7 @@ class MediaAction(Enum):
 class FilmCDData(CallbackData, prefix="films"):
     action: MediaAction
     id: int
-    name: str
+    # name: str
     pagination: Union[None, int]
 
 

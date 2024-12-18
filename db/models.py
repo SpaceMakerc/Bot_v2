@@ -1,4 +1,5 @@
-from sqlalchemy import MetaData, func, String, ForeignKey, Text
+from sqlalchemy import MetaData, func, String, ForeignKey, Text, Boolean
+from sqlalchemy.sql import true
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import BYTEA, ENUM
 from typing import Annotated
@@ -8,6 +9,9 @@ from enum import Enum
 metadata = MetaData()
 
 created_at = Annotated[datetime, mapped_column(server_default=func.now())]
+deleted_at = Annotated[datetime, mapped_column(
+    server_default='2033-12-31 22:59:59+07'
+)]
 
 
 class GenreFilms(Enum):
@@ -84,6 +88,11 @@ class FilmsDate(Base):
         ),
         nullable=False, default=GenreFilms.adventures
     )
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=true(), nullable=False)
+    created_at: Mapped[created_at]
+    deleted_at: Mapped[deleted_at]
+
     user: Mapped["Users"] = relationship(
         back_populates="films"
     )

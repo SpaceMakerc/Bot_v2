@@ -28,7 +28,7 @@ def get_film_list(
                 callback_data=FilmCDData(
                     action=MediaAction.details,
                     id=films[film]["id"],
-                    name=films[film]["name"],
+                    # name=films[film]["name"],
                     pagination=pagination
                 )
             )
@@ -53,13 +53,21 @@ def get_film_list(
     return builder.as_markup()
 
 
-# TODO Here film_cb_data for future delete or update films
 def get_film_details_kb(film_cb_data: FilmCDData) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Вернуться к списку фильмов",
         callback_data=ShowCBData(
             category=ShowCategory.film,
+            pagination=film_cb_data.pagination
+        )
+    )
+    builder.button(
+        text="Удалить файл",
+        callback_data=FilmCDData(
+            action=MediaAction.remove,
+            id=film_cb_data.id,
+            # name=film_cb_data.name,
             pagination=film_cb_data.pagination
         )
     )

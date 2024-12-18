@@ -3,7 +3,11 @@ from aiogram.types.callback_query import CallbackQuery
 from aiogram.utils import markdown
 
 from db.db_ import managers
-from db.queries import get_user_films_by_user, get_user_film_by_table_id
+from db.queries import (
+    get_user_films_by_user,
+    get_user_film_by_table_id,
+    remove_film_by_table_id
+)
 from keyboards.inline_keyboards.inline_button_information import (
     ShowCBData,
     ShowCategory,
@@ -27,11 +31,11 @@ async def handle_show_films_button(
         callback_query: CallbackQuery,
         callback_data: ShowCBData
 ):
+    await callback_query.answer()
     user_id = int(callback_query.from_user.id)
     films = await get_user_films_by_user(manager=managers, user_id=user_id)
     include_back = check_button_back(callback_data.pagination)
 
-    await callback_query.answer()
     if films:
         if callback_data.pagination is None:
             await callback_query.message.edit_text(
@@ -69,9 +73,9 @@ async def handle_show_films_detail_button(
         callback_query: CallbackQuery,
         callback_data: FilmCDData
 ):
+    await callback_query.answer()
     table_id = callback_data.id
     data = await get_user_film_by_table_id(manager=managers, table_id=table_id)
-    await callback_query.answer()
     message_text = markdown.text(
         markdown.hbold("Название:"), data["name"],
         markdown.hbold("Комментарий:"), data["comment"],
@@ -91,9 +95,9 @@ async def handle_show_next_films_button(
         callback_query: CallbackQuery,
         callback_data: PaginationCBFilm
 ):
+    await callback_query.answer()
     user_id = int(callback_query.from_user.id)
     films = await get_user_films_by_user(manager=managers, user_id=user_id)
-    await callback_query.answer()
     callback_data.pagination = callback_data.pagination + 3
     await callback_query.message.edit_text(
         text="Ещё список твоих фильмов",
@@ -109,13 +113,37 @@ async def handle_show_previous_films_button(
         callback_query: CallbackQuery,
         callback_data: PaginationCBFilm
 ):
+    await callback_query.answer()
     user_id = int(callback_query.from_user.id)
     films = await get_user_films_by_user(manager=managers, user_id=user_id)
-    await callback_query.answer()
     callback_data.pagination = callback_data.pagination - 3
     include_back = check_button_back(callback_data.pagination)
     await callback_query.message.edit_text(
         text="Предыдущий список твоих фильмов",
+        reply_markup=get_film_list(
+            films=films, pagination=callback_data.pagination,
+            include_back=include_back
+        )
+    )
+
+
+@router.callback_query(FilmCDData.filter(F.action == MediaAction.remove))
+async def handle_remove_film_button(
+        callback_query: CallbackQuery,
+        callback_data: FilmCDData
+):
+    film = await remove_film_by_table_id(
+        manager=managers, table_id=callback_data.id
+    )
+    user_id = int(callback_query.from_user.id)
+    await callback_query.answer(
+        text=f"Фильм {film.name} удалён",
+        show_alert=True,
+    )
+    films = await get_user_films_by_user(manager=managers, user_id=user_id)
+    include_back = check_button_back(callback_data.pagination)
+    await callback_query.message.edit_text(
+        text=f"Список твоих фильмов",
         reply_markup=get_film_list(
             films=films, pagination=callback_data.pagination,
             include_back=include_back

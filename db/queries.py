@@ -1,5 +1,6 @@
 import logging
-from sqlalchemy import select
+from sqlalchemy import select, update, and_
+from sqlalchemy.sql import false, true
 from typing import Optional
 
 from db.db_ import AsyncSessionContextManager
@@ -115,7 +116,9 @@ async def get_user_films_by_user(
             query = select(
                 FilmsDate.id.label("id"),
                 FilmsDate.name.label("name")
-            ).where(FilmsDate.user_id == user_id)
+            ).where(and_(
+                FilmsDate.user_id == user_id, FilmsDate.is_deleted == false()
+            ))
             db_info = await manager.session.execute(query)
             films = db_info.all()
             if films is None:
@@ -141,19 +144,20 @@ async def get_user_film_by_table_id(
                 FilmsDate.name.label("name"),
                 FilmsDate.comment.label("comment"),
                 FilmsDate.genre.label("genre")
-            ).where(FilmsDate.id == table_id)
+            ).where(and_(
+                FilmsDate.id == table_id, FilmsDate.is_deleted == false()
+            ))
             db_info = await manager.session.execute(query)
-            films = db_info.all()
-            if films is None:
+            film = db_info.first()
+            if film is None:
                 return None
-            for film in films:
-                data.update(
-                    {
-                        "name": film.name,
-                        "comment": film.comment,
-                        "genre": film.genre
-                    }
-                )
+            data.update(
+                {
+                    "name": film.name,
+                    "comment": film.comment,
+                    "genre": film.genre
+                }
+            )
         return data
     except Exception as er:
         logger.warning("Exception while getting films from db. info: %s", er)
@@ -321,3 +325,23 @@ async def get_document_by_table_id(
             return data
     except Exception as er:
         logger.warning("Exception while getting document from db. info: %s", er)
+
+
+async def remove_film_by_table_id(
+        manager: AsyncSessionContextManager,
+        table_id: int
+):
+    try:
+        async with manager:
+            query = update(FilmsDate).where(
+                FilmsDate.id == table_id
+            ).values(
+                is_deleted=true()
+            ).returning(FilmsDate)
+            db_info = await manager.session.execute(query)
+            film = db_info.scalars().first()
+            await manager.session.commit()
+            logger.info("Film %s was deleted", table_id)
+            return film
+    except Exception as er:
+        logger.warning("Film %s was NOT deleted. INFO - %s", table_id, er)
