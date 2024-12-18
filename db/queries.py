@@ -174,7 +174,9 @@ async def get_serials_by_user(
             query = select(
                 SerialDate.id.label("id"),
                 SerialDate.name.label("name")
-            ).where(SerialDate.user_id == user_id)
+            ).where(and_(
+                SerialDate.user_id == user_id, SerialDate.is_deleted == false())
+            )
             db_info = await manager.session.execute(query)
             serials = db_info.all()
             if serials is None:
@@ -202,17 +204,16 @@ async def get_serial_by_table_id(
                 SerialDate.genre.label("genre")
             ).where(SerialDate.id == table_id)
             db_info = await manager.session.execute(query)
-            serials = db_info.all()
-            if serials is None:
+            serial = db_info.first()
+            if serial is None:
                 return None
-            for serial in serials:
-                data.update(
-                    {
-                        "name": serial.name,
-                        "comment": serial.comment,
-                        "genre": serial.genre
-                    }
-                )
+            data.update(
+                {
+                    "name": serial.name,
+                    "comment": serial.comment,
+                    "genre": serial.genre
+                }
+            )
             return data
     except Exception as er:
         logger.warning("Exception while getting serial from db. info: %s", er)
@@ -345,3 +346,23 @@ async def remove_film_by_table_id(
             return film
     except Exception as er:
         logger.warning("Film %s was NOT deleted. INFO - %s", table_id, er)
+
+
+async def remove_serial_by_table_id(
+        manager: AsyncSessionContextManager,
+        table_id: int
+):
+    try:
+        async with manager:
+            query = update(SerialDate).where(
+                SerialDate.id == table_id
+            ).values(
+                is_deleted=true()
+            ).returning(SerialDate)
+            db_info = await manager.session.execute(query)
+            film = db_info.scalars().first()
+            await manager.session.commit()
+            logger.info("Serial %s was deleted", table_id)
+            return film
+    except Exception as er:
+        logger.warning("Serial %s was NOT deleted. INFO - %s", table_id, er)

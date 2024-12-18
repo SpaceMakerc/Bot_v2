@@ -28,7 +28,6 @@ def get_serial_list(
                 callback_data=SerialCBData(
                     action=MediaAction.details,
                     id=serials[serial]["id"],
-                    name=serials[serial]["name"],
                     pagination=pagination
                 )
             )
@@ -57,9 +56,17 @@ def get_serial_list(
 def get_serial_details_kb(serial_cb_data: SerialCBData) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
-        text="Вернуться к списку фильмов",
+        text="Вернуться к списку сериалов",
         callback_data=ShowCBData(
             category=ShowCategory.serial,
+            pagination=serial_cb_data.pagination
+        )
+    )
+    builder.button(
+        text="Удалить файл",
+        callback_data=SerialCBData(
+            action=MediaAction.remove,
+            id=serial_cb_data.id,
             pagination=serial_cb_data.pagination
         )
     )

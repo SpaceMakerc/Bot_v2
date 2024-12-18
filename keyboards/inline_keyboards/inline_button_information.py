@@ -25,7 +25,6 @@ class MediaAction(Enum):
 class FilmCDData(CallbackData, prefix="films"):
     action: MediaAction
     id: int
-    # name: str
     pagination: Union[None, int]
 
 
@@ -42,7 +41,6 @@ class PaginationCBFilm(CallbackData, prefix="film_pag"):
 class SerialCBData(CallbackData, prefix="serials"):
     action: MediaAction
     id: int
-    name: str
     pagination: Union[None, int]
 
 

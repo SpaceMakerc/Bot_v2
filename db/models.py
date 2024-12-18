@@ -1,5 +1,5 @@
 from sqlalchemy import MetaData, func, String, ForeignKey, Text, Boolean
-from sqlalchemy.sql import true
+from sqlalchemy.sql import false
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import BYTEA, ENUM
 from typing import Annotated
@@ -89,7 +89,7 @@ class FilmsDate(Base):
         nullable=False, default=GenreFilms.adventures
     )
     is_deleted: Mapped[bool] = mapped_column(
-        Boolean, server_default=true(), nullable=False)
+        Boolean, server_default=false(), nullable=False)
     created_at: Mapped[created_at]
     deleted_at: Mapped[deleted_at]
 
@@ -114,6 +114,11 @@ class SerialDate(Base):
         ),
         default=GenreSerials.sit_com, nullable=False
     )
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=false(), nullable=False
+    )
+    created_at: Mapped[created_at]
+    deleted_at: Mapped[deleted_at]
 
     user: Mapped[Users] = relationship(
         back_populates="serials"
@@ -136,6 +141,11 @@ class PictureData(Base):
         default=PictureGenre.plain, nullable=False
     )
     picture: Mapped[bytes] = mapped_column(type_=BYTEA)
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=false(), nullable=False
+    )
+    created_at: Mapped[created_at]
+    deleted_at: Mapped[deleted_at]
 
     user: Mapped["Users"] = relationship(
         back_populates="pictures"
@@ -152,6 +162,11 @@ class DocData(Base):
     name: Mapped[str] = mapped_column(String(100))
     description: Mapped[str] = mapped_column(Text)
     document: Mapped[bytes] = mapped_column(type_=BYTEA)
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=false(), nullable=False
+    )
+    created_at: Mapped[created_at]
+    deleted_at: Mapped[deleted_at]
 
     user: Mapped["Users"] = relationship(
         back_populates="documents"

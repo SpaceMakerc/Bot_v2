@@ -28,7 +28,6 @@ def get_film_list(
                 callback_data=FilmCDData(
                     action=MediaAction.details,
                     id=films[film]["id"],
-                    # name=films[film]["name"],
                     pagination=pagination
                 )
             )
@@ -67,7 +66,6 @@ def get_film_details_kb(film_cb_data: FilmCDData) -> InlineKeyboardMarkup:
         callback_data=FilmCDData(
             action=MediaAction.remove,
             id=film_cb_data.id,
-            # name=film_cb_data.name,
             pagination=film_cb_data.pagination
         )
     )
