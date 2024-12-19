@@ -21,7 +21,7 @@ from keyboards.inline_keyboards.show_films_info_kb import (
     get_film_details_kb
 )
 from keyboards.inline_keyboards.start_inline_kb import get_start_showtime_kb
-from routers.handlers.utils.utils import check_button_back
+from routers.utils.utils import check_button_back
 
 router = Router(name=__name__)
 

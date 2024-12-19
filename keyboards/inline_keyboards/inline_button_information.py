@@ -73,7 +73,6 @@ class PaginationCBPicture(CallbackData, prefix="picture_pag"):
 class DocumentCBData(CallbackData, prefix="documents"):
     action: MediaAction
     id: int
-    name: str
     pagination: Union[None, int]
 
 

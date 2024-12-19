@@ -20,7 +20,7 @@ from keyboards.inline_keyboards.show_pictures_info_kb import (
     get_pictures_list,
     get_picture_details_kb
 )
-from routers.handlers.utils.utils import return_media_to_user, check_button_back
+from routers.utils.utils import return_media_to_user, check_button_back
 
 router = Router(name=__name__)
 

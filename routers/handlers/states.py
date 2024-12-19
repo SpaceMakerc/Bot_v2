@@ -2,7 +2,7 @@ from aiogram.fsm.state import StatesGroup, State
 from enum import Enum
 from typing import Union
 
-from routers.handlers.utils.utils import get_questions_to_states
+from routers.utils.utils import get_questions_to_states
 
 
 class StartSurveyOptions(StatesGroup):

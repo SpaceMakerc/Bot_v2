@@ -287,7 +287,11 @@ async def get_documents_by_user(
             query = select(
                 DocData.id.label("id"),
                 DocData.name.label("name")
-            ).where(DocData.user_id == user_id)
+            ).where(
+                and_(
+                    DocData.user_id == user_id, DocData.is_deleted == false()
+                )
+            )
             db_info = await manager.session.execute(query)
             documents = db_info.all()
             if documents:
@@ -388,3 +392,22 @@ async def remove_picture_by_table_id(
             return picture
     except Exception as er:
         logger.warning("Picture %s was NOT deleted. INFO - %s", table_id, er)
+
+
+async def remove_document_by_table_id(
+        manager: AsyncSessionContextManager, table_id: int
+):
+    try:
+        async with manager:
+            query = update(DocData).where(
+                DocData.id == table_id
+            ).values(
+                is_deleted=true(), deleted_at=func.now()
+            ).returning(DocData)
+            db_info = await manager.session.execute(query)
+            document = db_info.scalars().first()
+            await manager.session.commit()
+            logger.info("Document %s was deleted", table_id)
+            return document
+    except Exception as er:
+        logger.warning("Document %s was NOT deleted. INFO - %s", table_id, er)

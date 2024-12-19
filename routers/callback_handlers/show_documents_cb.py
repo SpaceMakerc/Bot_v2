@@ -15,8 +15,12 @@ from keyboards.inline_keyboards.show_documents_info_kb import (
     get_document_details_kb
 )
 from db.db_ import managers
-from db.queries import get_documents_by_user, get_document_by_table_id
-from routers.handlers.utils.utils import check_button_back, return_media_to_user
+from db.queries import (
+    get_documents_by_user,
+    get_document_by_table_id,
+    remove_document_by_table_id
+)
+from routers.utils.utils import check_button_back, return_media_to_user
 
 router = Router(name=__name__)
 
@@ -116,6 +120,30 @@ async def handle_show_previous_document_button(
     include_back = check_button_back(callback_data.pagination)
     await callback_query.message.edit_text(
         text="Предыдущий список твоих документов",
+        reply_markup=get_documents_list(
+            documents=documents, pagination=callback_data.pagination,
+            include_back=include_back
+        )
+    )
+
+
+@router.callback_query(DocumentCBData.filter(F.action == MediaAction.remove))
+async def handle_remove_document_button(
+        callback_query: CallbackQuery,
+        callback_data: DocumentCBData
+):
+    document = await remove_document_by_table_id(
+        manager=managers, table_id=callback_data.id
+    )
+    user_id = int(callback_query.from_user.id)
+    await callback_query.answer(
+        text=f"Документ {document.name} удалён",
+        show_alert=True,
+    )
+    documents = await get_documents_by_user(manager=managers, user_id=user_id)
+    include_back = check_button_back(callback_data.pagination)
+    await callback_query.message.answer(
+        text=f"Список твоих документов",
         reply_markup=get_documents_list(
             documents=documents, pagination=callback_data.pagination,
             include_back=include_back

@@ -28,7 +28,6 @@ def get_documents_list(
                 callback_data=DocumentCBData(
                     action=MediaAction.details,
                     id=documents[doc]["id"],
-                    name=documents[doc]["name"],
                     pagination=pagination
                 )
             )
@@ -61,6 +60,14 @@ def get_document_details_kb(
         text="Вернуться к списку документов",
         callback_data=ShowCBData(
             category=ShowCategory.doc,
+            pagination=doc_cb_data.pagination
+        )
+    )
+    builder.button(
+        text="Удалить документ",
+        callback_data=DocumentCBData(
+            id=doc_cb_data.id,
+            action=MediaAction.remove,
             pagination=doc_cb_data.pagination
         )
     )
