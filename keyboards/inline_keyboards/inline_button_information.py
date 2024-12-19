@@ -57,7 +57,6 @@ class PaginationCBSerial(CallbackData, prefix="serial_pag"):
 class PictureCBData(CallbackData, prefix="pictures"):
     action: MediaAction
     id: int
-    name: str
     pagination: Union[None, int]
 
 

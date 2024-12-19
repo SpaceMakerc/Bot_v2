@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import select, update, and_
+from sqlalchemy import select, update, and_, func
 from sqlalchemy.sql import false, true
 from typing import Optional
 
@@ -229,7 +229,12 @@ async def get_pictures_by_user(
             query = select(
                 PictureData.id.label("id"),
                 PictureData.comment.label("comment")
-            ).where(PictureData.user_id == user_id)
+            ).where(
+                and_(
+                    PictureData.user_id == user_id,
+                    PictureData.is_deleted == false()
+                )
+            )
             db_info = await manager.session.execute(query)
             pictures = db_info.all()
             if pictures:
@@ -257,17 +262,16 @@ async def get_picture_by_table_id(
                 PictureData.picture.label("picture")
             ).where(PictureData.id == table_id)
             db_info = await manager.session.execute(query)
-            pictures = db_info.all()
-            if pictures is None:
+            picture = db_info.first()
+            if picture is None:
                 return None
-            for picture in pictures:
-                data.update(
-                    {
-                        "comment": picture.comment,
-                        "status": picture.status,
-                        "picture": picture.picture
-                    }
-                )
+            data.update(
+                {
+                    "comment": picture.comment,
+                    "status": picture.status,
+                    "picture": picture.picture
+                }
+            )
             return data
     except Exception as er:
         logger.warning("Exception while getting picture from db. info: %s", er)
@@ -312,17 +316,16 @@ async def get_document_by_table_id(
                 DocData.document.label("document")
             ).where(DocData.id == table_id)
             db_info = await manager.session.execute(query)
-            documents = db_info.all()
-            if documents is None:
+            document = db_info.first()
+            if document is None:
                 return None
-            for doc in documents:
-                data.update(
-                    {
-                        "name": doc.name,
-                        "description": doc.description,
-                        "document": doc.document
-                    }
-                )
+            data.update(
+                {
+                    "name": document.name,
+                    "description": document.description,
+                    "document": document.document
+                }
+            )
             return data
     except Exception as er:
         logger.warning("Exception while getting document from db. info: %s", er)
@@ -337,7 +340,7 @@ async def remove_film_by_table_id(
             query = update(FilmsDate).where(
                 FilmsDate.id == table_id
             ).values(
-                is_deleted=true()
+                is_deleted=true(), deleted_at=func.now()
             ).returning(FilmsDate)
             db_info = await manager.session.execute(query)
             film = db_info.scalars().first()
@@ -357,12 +360,31 @@ async def remove_serial_by_table_id(
             query = update(SerialDate).where(
                 SerialDate.id == table_id
             ).values(
-                is_deleted=true()
+                is_deleted=true(), deleted_at=func.now()
             ).returning(SerialDate)
             db_info = await manager.session.execute(query)
-            film = db_info.scalars().first()
+            serial = db_info.scalars().first()
             await manager.session.commit()
             logger.info("Serial %s was deleted", table_id)
-            return film
+            return serial
     except Exception as er:
         logger.warning("Serial %s was NOT deleted. INFO - %s", table_id, er)
+
+
+async def remove_picture_by_table_id(
+        manager: AsyncSessionContextManager, table_id: int
+):
+    try:
+        async with manager:
+            query = update(PictureData).where(
+                PictureData.id == table_id
+            ).values(
+                is_deleted=true(), deleted_at=func.now()
+            ).returning(PictureData)
+            db_info = await manager.session.execute(query)
+            picture = db_info.scalars().first()
+            await manager.session.commit()
+            logger.info("Picture %s was deleted", table_id)
+            return picture
+    except Exception as er:
+        logger.warning("Picture %s was NOT deleted. INFO - %s", table_id, er)

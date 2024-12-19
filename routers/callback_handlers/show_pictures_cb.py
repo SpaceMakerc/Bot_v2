@@ -11,7 +11,11 @@ from keyboards.inline_keyboards.inline_button_information import (
     PaginationPictureDirection
 )
 from db.db_ import managers
-from db.queries import get_pictures_by_user, get_picture_by_table_id
+from db.queries import (
+    get_pictures_by_user,
+    get_picture_by_table_id,
+    remove_picture_by_table_id
+)
 from keyboards.inline_keyboards.show_pictures_info_kb import (
     get_pictures_list,
     get_picture_details_kb
@@ -115,6 +119,30 @@ async def handle_show_previous_pictures_button(
     include_back = check_button_back(callback_data.pagination)
     await callback_query.message.edit_text(
         text="Предыдущий список твоих картинок",
+        reply_markup=get_pictures_list(
+            pictures=pictures, pagination=callback_data.pagination,
+            include_back=include_back
+        )
+    )
+
+
+@router.callback_query(PictureCBData.filter(F.action == MediaAction.remove))
+async def handle_remove_picture_button(
+        callback_query: CallbackQuery,
+        callback_data: PictureCBData
+):
+    picture = await remove_picture_by_table_id(
+        manager=managers, table_id=callback_data.id
+    )
+    user_id = int(callback_query.from_user.id)
+    await callback_query.answer(
+        text=f"Картинка {picture.comment} удалён",
+        show_alert=True,
+    )
+    pictures = await get_pictures_by_user(manager=managers, user_id=user_id)
+    include_back = check_button_back(callback_data.pagination)
+    await callback_query.message.answer(
+        text=f"Список твоих картинок",
         reply_markup=get_pictures_list(
             pictures=pictures, pagination=callback_data.pagination,
             include_back=include_back

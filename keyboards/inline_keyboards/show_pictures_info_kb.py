@@ -28,7 +28,6 @@ def get_pictures_list(
                 callback_data=PictureCBData(
                     action=MediaAction.details,
                     id=pictures[picture]["id"],
-                    name=pictures[picture]["comment"],
                     pagination=pagination
                 )
             )
@@ -61,6 +60,14 @@ def get_picture_details_kb(
         text="Вернуться к списку картинок",
         callback_data=ShowCBData(
             category=ShowCategory.picture,
+            pagination=picture_cb_data.pagination
+        )
+    ),
+    builder.button(
+        text="Удалить картинку",
+        callback_data=PictureCBData(
+            action=MediaAction.remove,
+            id=picture_cb_data.id,
             pagination=picture_cb_data.pagination
         )
     )
