@@ -4,7 +4,7 @@ from aiogram.utils import markdown
 from aiogram.enums import ChatAction
 
 from routers.handlers.states import PictureData
-from routers.handlers.utils.utils import get_media_from_user
+from routers.utils.utils import get_media_from_user
 from keyboards.common_keyboards import get_start_kb
 from db.db_ import managers
 from db.queries import add_picture

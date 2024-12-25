@@ -4,7 +4,7 @@ from aiogram.utils import markdown
 
 from keyboards.button_information import StartButtonNames
 from keyboards.common_keyboards import get_start_kb
-from routers.handlers.utils.weather_handler import share_weather
+from routers.utils.weather_handler import share_weather
 
 router = Router(name=__name__)
 

@@ -9,7 +9,7 @@ async_session_maker = async_sessionmaker(
 )
 
 
-class SessionAsyncContextManager:
+class AsyncSessionContextManager:
     def __init__(self) -> None:
         self.session_factory = async_session_maker
         self.session = None
@@ -37,4 +37,4 @@ class SessionAsyncContextManager:
         self.session = None
 
 
-managers = SessionAsyncContextManager()
+managers = AsyncSessionContextManager()

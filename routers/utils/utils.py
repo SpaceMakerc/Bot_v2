@@ -3,6 +3,7 @@ from aiogram import types
 import json
 import os
 import io
+from typing import Union
 
 from src.core import BASE_DIR
 
@@ -31,3 +32,18 @@ async def get_media_from_user(message: types.Message):
     bytes_of_media = io.BytesIO(downloaded_file.read()).getvalue()
 
     return bytes_of_media
+
+
+async def return_media_to_user(media_bytes: bytes):
+    file_ = io.BytesIO()
+    file_.write(media_bytes)
+    return file_
+
+
+def check_button_back(pagination: Union[int, None] = None) -> bool:
+    if pagination is None:
+        return False
+    elif pagination == 3:
+        return False
+    else:
+        return True

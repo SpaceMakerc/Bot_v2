@@ -5,7 +5,7 @@ class StartButtonNames:
     outlet = "Покажи информацию 🎬"
 
 
-class StoreButtonNames:
+class CommonButtonNames:
     film = "Фильм"
     serial = "Сериал"
     picture = "Картинка"

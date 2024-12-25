@@ -1,0 +1,7 @@
+SQLAlchemy
+alembic
+aiogram
+aiohttp
+pydantic
+pydantic_settings
+asyncpg

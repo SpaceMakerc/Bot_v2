@@ -1,6 +1,7 @@
-from sqlalchemy import MetaData, func, String, ForeignKey, Text
+from sqlalchemy import MetaData, func, String, ForeignKey, Text, Boolean
+from sqlalchemy.sql import false
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import BYTEA
+from sqlalchemy.dialects.postgresql import BYTEA, ENUM
 from typing import Annotated
 from datetime import datetime
 from enum import Enum
@@ -8,9 +9,12 @@ from enum import Enum
 metadata = MetaData()
 
 created_at = Annotated[datetime, mapped_column(server_default=func.now())]
+deleted_at = Annotated[datetime, mapped_column(
+    server_default='2033-12-31 22:59:59+07'
+)]
 
 
-class GenreFilms(str, Enum):
+class GenreFilms(Enum):
     comedy = "Комедия"
     horror = "Ужасы"
     drama = "Драма"
@@ -18,8 +22,11 @@ class GenreFilms(str, Enum):
     fantasy = "Фэнтези"
     adventures = "Приключения"
 
+    def __str__(self):
+        return self.value
 
-class GenreSerials(str, Enum):
+
+class GenreSerials(Enum):
     comedy = "Комедия"
     horror = "Ужасы"
     drama = "Драма"
@@ -28,10 +35,16 @@ class GenreSerials(str, Enum):
     adventures = "Приключения"
     sit_com = "Сит ком"
 
+    def __str__(self):
+        return self.value
 
-class StatusGenre(str, Enum):
+
+class PictureGenre(str, Enum):
     plain = "Обычная"
     special = "Важная"
+
+    def __str__(self):
+        return self.value
 
 
 class Base(DeclarativeBase):
@@ -69,8 +82,16 @@ class FilmsDate(Base):
     name: Mapped[str] = mapped_column(String(100))
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     genre: Mapped[GenreFilms] = mapped_column(
-        default=GenreFilms.adventures
+        ENUM(
+            GenreFilms, create_type=False, name="filmsgenres",
+            values_callable=lambda e: [field.value for field in e]
+        ),
+        nullable=False, default=GenreFilms.adventures
     )
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=false(), nullable=False)
+    created_at: Mapped[created_at]
+    deleted_at: Mapped[deleted_at]
 
     user: Mapped["Users"] = relationship(
         back_populates="films"
@@ -87,8 +108,17 @@ class SerialDate(Base):
     name: Mapped[str] = mapped_column(String(100))
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     genre: Mapped[GenreSerials] = mapped_column(
-        default=GenreSerials.sit_com
+        ENUM(
+            GenreSerials, create_type=False, name="serialsgenres",
+            values_callable=lambda e: [field.value for field in e]
+        ),
+        default=GenreSerials.sit_com, nullable=False
     )
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=false(), nullable=False
+    )
+    created_at: Mapped[created_at]
+    deleted_at: Mapped[deleted_at]
 
     user: Mapped[Users] = relationship(
         back_populates="serials"
@@ -103,10 +133,19 @@ class PictureData(Base):
         ForeignKey("users.id", ondelete="CASCADE")
     )
     comment: Mapped[str] = mapped_column(Text, nullable=True)
-    status: Mapped[StatusGenre] = mapped_column(
-        default=StatusGenre.plain
+    status: Mapped[PictureGenre] = mapped_column(
+        ENUM(
+            PictureGenre, create_type=False, name="picturesgenres",
+            values_callable=lambda e: [field.value for field in e]
+        ),
+        default=PictureGenre.plain, nullable=False
     )
     picture: Mapped[bytes] = mapped_column(type_=BYTEA)
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=false(), nullable=False
+    )
+    created_at: Mapped[created_at]
+    deleted_at: Mapped[deleted_at]
 
     user: Mapped["Users"] = relationship(
         back_populates="pictures"
@@ -123,6 +162,11 @@ class DocData(Base):
     name: Mapped[str] = mapped_column(String(100))
     description: Mapped[str] = mapped_column(Text)
     document: Mapped[bytes] = mapped_column(type_=BYTEA)
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=false(), nullable=False
+    )
+    created_at: Mapped[created_at]
+    deleted_at: Mapped[deleted_at]
 
     user: Mapped["Users"] = relationship(
         back_populates="documents"
